@@ -58,9 +58,12 @@ export function BedrockChat() {
 
             const response = await bedrockClient.send(command);
             const responseBody = new TextDecoder().decode(response.body);
-            const { completion } = JSON.parse(responseBody);
+            console.log(responseBody);
+            const responseData = JSON.parse(responseBody);
+            // Update this line to use generation instead of completion
+            const assistantContent = responseData.generation || responseData.completion || 'No response';
 
-            setMessages((prev) => [...prev, { role: 'assistant', content: completion }]);
+            setMessages((prev) => [...prev, { role: 'assistant', content: assistantContent }]);
         } catch (error) {
             console.error('Error:', error);
             setMessages((prev) => [
