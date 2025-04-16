@@ -3,6 +3,10 @@
 import * as React from 'react';
 import { Bot, Send, User } from 'lucide-react';
 import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime';
+import ReactMarkdown from 'react-markdown';
+import rehypeHighlight from 'rehype-highlight';
+import rehypeSanitize from 'rehype-sanitize';
+import remarkGfm from 'remark-gfm';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -98,12 +102,23 @@ export function BedrockChat() {
                             )}
                         >
                             {message.role === 'assistant' ? (
-                                <Bot className="w-6 h-6 text-primary flex-shrink-0" />
+                                <Bot className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
                             ) : (
-                                <User className="w-6 h-6 text-muted-foreground flex-shrink-0" />
+                                <User className="w-6 h-6 text-muted-foreground flex-shrink-0 mt-1" />
                             )}
-                            <div className="prose prose-sm dark:prose-invert max-w-none">
-                                {message.content}
+                            <div className="prose prose-sm dark:prose-invert max-w-none overflow-hidden w-full">
+                                {message.role === 'assistant' ? (
+                                    <div className="markdown-content">
+                                        <ReactMarkdown
+                                            remarkPlugins={[remarkGfm]}
+                                            rehypePlugins={[rehypeSanitize, rehypeHighlight]}
+                                        >
+                                            {message.content}
+                                        </ReactMarkdown>
+                                    </div>
+                                ) : (
+                                    message.content
+                                )}
                             </div>
                         </div>
                     ))}
@@ -115,7 +130,6 @@ export function BedrockChat() {
                     )}
                     <div ref={messagesEndRef} />
                 </div>
-
                 <form onSubmit={handleSubmit} className="border-t p-4">
                     <div className="flex gap-4">
                         <Input
